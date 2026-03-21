@@ -170,6 +170,9 @@ jobs:
           MARKET_REVIEW_ENABLED: ${{ vars.MARKET_REVIEW_ENABLED || secrets.MARKET_REVIEW_ENABLED || 'true' }}
           ANALYSIS_DELAY: ${{ vars.ANALYSIS_DELAY || secrets.ANALYSIS_DELAY || '0' }}
           TRADING_DAY_CHECK_ENABLED: ${{ vars.TRADING_DAY_CHECK_ENABLED || secrets.TRADING_DAY_CHECK_ENABLED || 'true' }}
+          J2W_MARKET_ANALYSIS_ENDPOINT: ${{ secrets.J2W_MARKET_ANALYSIS_ENDPOINT }}
+          J2W_MARKET_ANALYSIS_TOKEN: ${{ secrets.MARKET_ANALYSIS_INGEST_TOKEN }}
+          J2W_MARKET_ANALYSIS_SOURCE_URL: ${{ vars.J2W_MARKET_ANALYSIS_SOURCE_URL || secrets.J2W_MARKET_ANALYSIS_SOURCE_URL }}
           
           # ==========================================
           # 系统配置
@@ -236,6 +239,7 @@ jobs:
           echo ""
           echo "【通知渠道】"
           echo "  PushPlus: $([ -n "$PUSHPLUS_TOKEN" ] && echo '✅ 已配置' || echo '⚪ 未配置')"
+          echo "  J2W 市场上传: $(([ -n "$J2W_MARKET_ANALYSIS_ENDPOINT" ] && [ -n "$J2W_MARKET_ANALYSIS_TOKEN" ]) && echo '✅ 已配置' || echo '⚪ 未配置')"
           echo "  企业微信: $([ -n "$WECHAT_WEBHOOK_URL" ] && echo '✅ 已配置' || echo '⚪ 未配置')"
           echo "  飞书: $([ -n "$FEISHU_WEBHOOK_URL" ] && echo '✅ 已配置' || echo '⚪ 未配置')"
           echo "  Telegram: $([ -n "$TELEGRAM_BOT_TOKEN" ] && echo '✅ 已配置' || echo '⚪ 未配置')"
