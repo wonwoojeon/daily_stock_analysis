@@ -653,6 +653,10 @@ class Config:
     market_review_enabled: bool = True        # 是否启用大盘复盘
     # 大盘复盘市场区域：cn(A股)、us(美股)、both(两者)，us 适合仅关注美股的用户
     market_review_region: str = "cn"
+    # 可选：将大盘复盘同步上传到外部站点（如 J2W）
+    j2w_market_analysis_endpoint: Optional[str] = None
+    j2w_market_analysis_token: Optional[str] = None
+    j2w_market_analysis_source_url: Optional[str] = None
     # 交易日检查：默认启用，非交易日跳过执行；设为 false 或 --force-run 可强制执行（Issue #373）
     trading_day_check_enabled: bool = True
 
@@ -1251,6 +1255,12 @@ class Config:
             market_review_enabled=os.getenv('MARKET_REVIEW_ENABLED', 'true').lower() == 'true',
             market_review_region=cls._parse_market_review_region(
                 os.getenv('MARKET_REVIEW_REGION', 'cn')
+            ),
+            j2w_market_analysis_endpoint=os.getenv('J2W_MARKET_ANALYSIS_ENDPOINT') or None,
+            j2w_market_analysis_token=os.getenv('J2W_MARKET_ANALYSIS_TOKEN') or None,
+            j2w_market_analysis_source_url=(
+                os.getenv('J2W_MARKET_ANALYSIS_SOURCE_URL')
+                or 'https://github.com/wonwoojeon/daily_stock_analysis'
             ),
             trading_day_check_enabled=os.getenv('TRADING_DAY_CHECK_ENABLED', 'true').lower() != 'false',
             webui_enabled=os.getenv('WEBUI_ENABLED', 'false').lower() == 'true',

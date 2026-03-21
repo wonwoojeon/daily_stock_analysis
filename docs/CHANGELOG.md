@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### 改进
+
+- 🌐 **可选 J2W 市场复盘上传** — 新增 `J2W_MARKET_ANALYSIS_ENDPOINT`、`J2W_MARKET_ANALYSIS_TOKEN`、`J2W_MARKET_ANALYSIS_SOURCE_URL` 可选配置；当市场复盘生成成功且配置齐全时，`main.py` 会在原有通知链路之外额外向外部 ingest API 上传一份标准化市场报告。上传失败只记日志，不会影响 GitHub Actions 成功状态、报告保存或现有通知渠道。
+
 ### 修复
 
 - 🧾 **Web 报告透明度区复制按钮层级修复**（#749）— `ReportDetails` 中“原始分析结果 / 分析快照”的复制按钮补齐可点击层级，避免被下方 JSON 内容覆盖后出现按钮可见但无法点击的问题。

@@ -115,6 +115,19 @@
 > 注：AI 优先级 Gemini > Anthropic > OpenAI（含 AIHubmix）> Ollama，至少配置一个。`AIHUBMIX_KEY` 无需配置 `OPENAI_BASE_URL`，系统自动适配。图片识别需 Vision 能力模型。DeepSeek 思考模式（deepseek-reasoner、deepseek-r1、qwq、deepseek-chat）按模型名自动识别，无需额外配置。**Ollama 本地模型**（无需 API Key）必须使用 `OLLAMA_API_BASE`，误用 `OPENAI_BASE_URL` 会导致 404。
 
 <details>
+<summary><b>可选：同步上传到外部站点（J2W）</b></summary>
+
+| Secret 名称 | 说明 | 必填 |
+|------------|------|:----:|
+| `J2W_MARKET_ANALYSIS_ENDPOINT` | 外部 ingest API 地址，例如 `https://j2winvestment.com/api/market-analysis-ingest` | 可选 |
+| `MARKET_ANALYSIS_INGEST_TOKEN` | 对应 ingest API Bearer Token；工作流会映射为 `J2W_MARKET_ANALYSIS_TOKEN` | 可选 |
+| `J2W_MARKET_ANALYSIS_SOURCE_URL` | 结果来源地址（可选，默认当前仓库地址） | 可选 |
+
+> 未配置时会完全跳过上传，不影响原有通知、报告生成和 GitHub Actions 成功状态。
+
+</details>
+
+<details>
 <summary><b>通知渠道配置</b>（点击展开，至少配置一个）</summary>
 
 

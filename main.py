@@ -49,6 +49,7 @@ from src.core.market_review import run_market_review
 from src.webui_frontend import prepare_webui_frontend_assets
 from src.config import get_config, Config
 from src.logging_config import setup_logging
+from src.services.j2w_market_ingest import J2WMarketIngestService
 
 
 logger = logging.getLogger(__name__)
@@ -347,6 +348,25 @@ def run_full_analysis(
             # 如果有结果，赋值给 market_report 用于后续飞书文档生成
             if review_result:
                 market_report = review_result
+
+        # 可选：同步上传市场复盘到 J2W 站点（失败不影响主流程）
+        if market_report:
+            try:
+                j2w_market_scope = (effective_region or getattr(config, 'market_review_region', 'cn') or 'cn')
+                j2w_title = 'A股 + 美股大盘复盘' if j2w_market_scope == 'both' else None
+                J2WMarketIngestService(config).publish_market_report(
+                    market_scope=j2w_market_scope,
+                    report_markdown=market_report,
+                    raw_payload={
+                        'runner': 'github-actions' if os.getenv('GITHUB_ACTIONS') == 'true' else 'local',
+                        'queryId': query_id,
+                        'reportType': getattr(config, 'report_type', 'simple'),
+                        'stockCount': len(results),
+                    },
+                    title=j2w_title,
+                )
+            except Exception as e:
+                logger.warning(f"J2W 市场复盘上传失败: {e}")
 
         # Issue #190: 合并推送（个股+大盘复盘）
         if merge_notification and (results or market_report) and not args.no_notify:
