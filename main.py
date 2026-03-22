@@ -674,13 +674,30 @@ def main() -> int:
             else:
                 logger.warning("未检测到 API Key (Gemini/OpenAI)，将仅使用模板生成报告")
 
-            run_market_review(
+            review_result = run_market_review(
                 notifier=notifier,
                 analyzer=analyzer,
                 search_service=search_service,
                 send_notification=not args.no_notify,
                 override_region=effective_region,
             )
+
+            if review_result:
+                try:
+                    j2w_market_scope = (effective_region or getattr(config, 'market_review_region', 'cn') or 'cn')
+                    j2w_title = 'A股 + 美股大盘复盘' if j2w_market_scope == 'both' else None
+                    J2WMarketIngestService(config).publish_market_report(
+                        market_scope=j2w_market_scope,
+                        report_markdown=review_result,
+                        raw_payload={
+                            'runner': 'github-actions' if os.getenv('GITHUB_ACTIONS') == 'true' else 'local',
+                            'mode': 'market-review-only',
+                            'reportType': getattr(config, 'report_type', 'simple'),
+                        },
+                        title=j2w_title,
+                    )
+                except Exception as e:
+                    logger.warning(f"J2W 市场复盘上传失败: {e}")
             return 0
 
         # 模式2: 定时任务模式
