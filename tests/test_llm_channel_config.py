@@ -9,6 +9,7 @@ from src.config import (
     Config,
     get_effective_agent_models_to_try,
     get_effective_agent_primary_model,
+    normalize_generation_temperature,
 )
 
 
@@ -292,6 +293,27 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(
             get_effective_agent_models_to_try(config),
             ["gpt4o", "openai/gpt-4o-mini"],
+        )
+
+
+    def test_normalize_generation_temperature_for_moonshot_kimi(self) -> None:
+        self.assertEqual(
+            normalize_generation_temperature(
+                model="openai/kimi-k2.5",
+                temperature=0.7,
+                api_base="https://api.moonshot.ai/v1",
+            ),
+            1,
+        )
+
+    def test_normalize_generation_temperature_preserves_other_models(self) -> None:
+        self.assertEqual(
+            normalize_generation_temperature(
+                model="openai/gpt-4o-mini",
+                temperature=0.3,
+                api_base="https://api.openai.com/v1",
+            ),
+            0.3,
         )
 
 

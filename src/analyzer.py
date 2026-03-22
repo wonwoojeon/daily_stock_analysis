@@ -29,6 +29,7 @@ from src.config import (
     get_api_keys_for_model,
     get_config,
     get_configured_llm_models,
+    normalize_generation_temperature,
     resolve_news_window_days,
 )
 from src.storage import persist_llm_usage
@@ -792,13 +793,19 @@ class GeminiAnalyzer:
         for model in models_to_try:
             try:
                 model_short = model.split("/")[-1] if "/" in model else model
+                extra_params = extra_litellm_params(model, config)
+                effective_temperature = normalize_generation_temperature(
+                    model=model,
+                    temperature=temperature,
+                    api_base=extra_params.get("api_base"),
+                )
                 call_kwargs: Dict[str, Any] = {
                     "model": model,
                     "messages": [
                         {"role": "system", "content": effective_system_prompt},
                         {"role": "user", "content": prompt},
                     ],
-                    "temperature": temperature,
+                    "temperature": effective_temperature,
                     "max_tokens": max_tokens,
                 }
                 extra = get_thinking_extra_body(model_short)
@@ -819,7 +826,7 @@ class GeminiAnalyzer:
                     keys = get_api_keys_for_model(model, config)
                     if keys:
                         call_kwargs["api_key"] = keys[0]
-                    call_kwargs.update(extra_litellm_params(model, config))
+                    call_kwargs.update(extra_params)
                     response = litellm.completion(**call_kwargs)
 
                 if response and response.choices and response.choices[0].message.content:
