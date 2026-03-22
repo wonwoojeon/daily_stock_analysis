@@ -326,6 +326,20 @@ def resolve_unified_llm_temperature(model: str) -> float:
     return 0.7
 
 
+def normalize_generation_temperature(model: str, temperature: float, api_base: Optional[str] = None) -> float:
+    """Normalize temperature for providers/models with fixed-sampling requirements.
+
+    Moonshot Open Platform's Kimi models currently reject arbitrary temperatures and
+    accept only ``1``. Preserve caller intent for all other providers.
+    """
+    normalized_model = (model or "").strip().lower()
+    normalized_api_base = (api_base or "").strip().lower()
+
+    if normalized_model.startswith("openai/kimi-") and ("moonshot.ai" in normalized_api_base or "moonshot.cn" in normalized_api_base):
+        return 1
+    return temperature
+
+
 def _get_litellm_provider(model: str) -> str:
     """Extract the LiteLLM provider prefix from a model string."""
     if not model:
