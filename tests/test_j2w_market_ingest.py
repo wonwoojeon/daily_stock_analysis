@@ -12,13 +12,13 @@ from src.config import Config
 from src.services.j2w_market_ingest import J2WMarketIngestService
 
 
-SAMPLE_MARKDOWN = """# 美股大盘复盘
+SAMPLE_MARKDOWN = """# 미국 증시 데일리 분석
 
-美股短线强势，但追价性价比一般。
+미국 증시는 단기 강세를 이어가고 있지만 추격 매수의 효율은 낮아졌습니다.
 
-- 科技股相对强势
-- 长端利率仍有压力
-- 观察 NVDA 与 MSFT 是否继续领涨
+- 대형 기술주가 상대 강세를 유지했습니다
+- 장기 금리 부담은 여전히 남아 있습니다
+- NVDA와 MSFT의 추가 주도 여부를 확인할 필요가 있습니다
 """
 
 
@@ -46,11 +46,11 @@ class TestJ2WMarketIngestService(unittest.TestCase):
 
         self.assertEqual(payload["reportDate"], "2026-03-22")
         self.assertEqual(payload["marketScope"], "us")
-        self.assertEqual(payload["title"], "美股大盘复盘")
-        self.assertEqual(payload["summary"], "美股短线强势，但追价性价比一般。")
+        self.assertEqual(payload["title"], "미국 증시 데일리 분석")
+        self.assertEqual(payload["summary"], "미국 증시는 단기 강세를 이어가고 있지만 추격 매수의 효율은 낮아졌습니다.")
         self.assertEqual(
             payload["highlights"],
-            ["科技股相对强势", "长端利率仍有压力", "观察 NVDA 与 MSFT 是否继续领涨"],
+            ["대형 기술주가 상대 강세를 유지했습니다", "장기 금리 부담은 여전히 남아 있습니다", "NVDA와 MSFT의 추가 주도 여부를 확인할 필요가 있습니다"],
         )
         self.assertEqual(payload["sourceName"], "daily_stock_analysis")
         self.assertEqual(payload["sourceUrl"], "https://github.com/wonwoojeon/daily_stock_analysis")
@@ -76,6 +76,17 @@ class TestJ2WMarketIngestService(unittest.TestCase):
         self.assertEqual(kwargs["headers"]["Authorization"], "Bearer secret-token")
         self.assertEqual(kwargs["json"]["marketScope"], "us")
         self.assertEqual(kwargs["timeout"], 15)
+
+    def test_build_payload_uses_korean_us_default_title_when_heading_missing(self):
+        service = J2WMarketIngestService(_config())
+
+        payload = service.build_payload(
+            market_scope="us",
+            report_markdown="첫 문단만 있는 시장 메모입니다.",
+            report_date=date(2026, 3, 22),
+        )
+
+        self.assertEqual(payload["title"], "미국 증시 데일리 분석")
 
     @mock.patch("src.services.j2w_market_ingest.requests.post")
     def test_publish_market_report_skips_when_not_configured(self, mock_post):

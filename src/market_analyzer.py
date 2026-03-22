@@ -463,72 +463,74 @@ Lagging: {bottom_sectors_text if bottom_sectors_text else "N/A"}"""
         indices_placeholder = indices_text if indices_text else ("No index data (API error)" if self.region == "us" else "暂无指数数据（接口异常）")
         news_placeholder = news_text if news_text else ("No relevant news" if self.region == "us" else "暂无相关新闻")
 
-        # 美股场景使用英文提示语，便于生成更符合美股语境的报告
+        # 미국시장도 사이트 노출 기준에 맞춰 한국어 보고서로 통일한다.
         if self.region == "us":
-            data_no_indices_hint_en = (
-                "Note: Market data fetch failed. Rely mainly on [Market News] for qualitative analysis. Do not invent index levels."
+            data_no_indices_hint_ko = (
+                "참고: 지수 데이터 수집에 실패했습니다. [시장 뉴스]를 중심으로 정성 분석을 하고, 확인되지 않은 지수 수치는 추정하지 마세요."
                 if not indices_text
                 else ""
             )
-            return f"""You are a professional US/A/H market analyst. Please produce a concise US market recap report based on the data below.
+            return f"""너는 미국 증시를 복기하는 전문 시장 분석가다. 아래 데이터를 바탕으로 한국어 시장 요약 리포트를 작성하라.
 
-[Requirements]
-- Output pure Markdown only
-- No JSON
-- No code blocks
-- Use emoji sparingly in headings (at most one per heading)
+【출력 규칙】
+- 출력은 순수 Markdown만 사용한다
+- JSON 금지
+- 코드블록 금지
+- 제목과 본문은 자연스러운 한국어로 작성한다
+- 중국어 표현은 사용하지 않는다
+- 필요 이상으로 과장하지 말고, 다음 거래일 판단에 도움이 되는 문장만 남긴다
 
 ---
 
-# Today's Market Data
+# 오늘의 시장 데이터
 
-## Date
+## 날짜
 {overview.date}
 
-## Major Indices
+## 주요 지수
 {indices_placeholder}
 
 {stats_block}
 
 {sector_block}
 
-## Market News
+## 시장 뉴스
 {news_placeholder}
 
-{data_no_indices_hint_en}
+{data_no_indices_hint_ko}
 
 {self.strategy.to_prompt_block()}
 
 ---
 
-# Output Template (follow this structure)
+# 출력 형식 템플릿
 
-## {overview.date} US Market Recap
+## {overview.date} 미국 증시 데일리 분석
 
-### 1. Market Summary
-(2-3 sentences on overall market performance, index moves, volume)
+### 1. 시장 요약
+(2-3문장으로 미국 증시 전체 흐름, 지수 방향, 체감 분위기를 정리)
 
-### 2. Index Commentary
-(Analyse S&P 500, Nasdaq, Dow and other major index moves.)
+### 2. 지수 체크
+(S&P 500, Nasdaq, Dow 중심으로 핵심 움직임을 설명)
 
-### 3. Fund Flows
-(Interpret volume and flow implications)
+### 3. 수급과 금리
+(거래대금, 금리, 달러, 변동성 흐름이 주식시장에 준 의미를 설명)
 
-### 4. Sector/Theme Highlights
-(Analyze drivers behind leading/lagging sectors)
+### 4. 섹터/테마 포인트
+(반도체, 빅테크, 경기민감, 방어주 등 강약 구도를 정리)
 
-### 5. Outlook
-(Short-term view based on price action and news)
+### 5. 다음 세션 체크포인트
+(다음 거래일에 가장 중요하게 볼 가격대나 이벤트를 적기)
 
-### 6. Risk Alerts
-(Key risks to watch)
+### 6. 리스크 요인
+(주의해야 할 변수 2~3개를 정리)
 
-### 7. Strategy Plan
-(Provide risk-on/neutral/risk-off stance, position sizing guideline, and one invalidation trigger.)
+### 7. 대응 아이디어
+(공격/중립/방어 중 하나의 스탠스와 간단한 포지션 아이디어를 제시하고, 마지막 줄에 “본 내용은 투자 조언이 아니며 참고용입니다.”를 붙인다)
 
 ---
 
-Output the report content directly, no extra commentary.
+리포트 본문만 출력하고 다른 설명은 붙이지 마라.
 """
 
         # A 股场景使用中文提示语
@@ -633,40 +635,41 @@ Output the report content directly, no extra commentary.
         stats_section = ""
         if self.profile.has_market_stats:
             stats_section = f"""
-### 三、涨跌统计
-| 指标 | 数值 |
+### 3. 시장 통계
+| 항목 | 수치 |
 |------|------|
-| 上涨家数 | {overview.up_count} |
-| 下跌家数 | {overview.down_count} |
-| 涨停 | {overview.limit_up_count} |
-| 跌停 | {overview.limit_down_count} |
-| 两市成交额 | {overview.total_amount:.0f}亿 |
+| 상승 종목 수 | {overview.up_count} |
+| 하락 종목 수 | {overview.down_count} |
+| 상한가 | {overview.limit_up_count} |
+| 하한가 | {overview.limit_down_count} |
+| 거래대금 | {overview.total_amount:.0f}억 |
 """
         sector_section = ""
         if self.profile.has_sector_rankings and (top_text or bottom_text):
             sector_section = f"""
-### 四、板块表现
-- **领涨**: {top_text}
-- **领跌**: {bottom_text}
+### 4. 섹터 흐름
+- **강세 섹터**: {top_text}
+- **약세 섹터**: {bottom_text}
 """
-        market_label = "A股" if self.region == "cn" else "美股"
+        market_label = "중국 증시" if self.region == "cn" else "미국 증시"
+        title = "중국 증시 데일리 분석" if self.region == "cn" else "미국 증시 데일리 분석"
         strategy_summary = self.strategy.to_markdown_block()
-        report = f"""## {overview.date} 大盘复盘
+        report = f"""## {overview.date} {title}
 
-### 一、市场总结
-今日{market_label}市场整体呈现**{market_mood}**态势。
+### 1. 시장 요약
+오늘 {market_label}은 **{market_mood}** 흐름으로 마감했습니다.
 
-### 二、主要指数
+### 2. 주요 지수
 {indices_text}
 {stats_section}
 {sector_section}
-### 五、风险提示
-市场有风险，投资需谨慎。以上数据仅供参考，不构成投资建议。
+### 5. 리스크 메모
+시장 변동성은 언제든 확대될 수 있습니다. 위 내용은 참고용이며 투자 조언이 아닙니다.
 
 {strategy_summary}
 
 ---
-*复盘时间: {datetime.now().strftime('%H:%M')}*
+*리포트 생성 시각: {datetime.now().strftime('%H:%M')}*
 """
         return report
     
