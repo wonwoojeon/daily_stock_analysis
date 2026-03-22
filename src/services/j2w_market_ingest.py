@@ -127,11 +127,11 @@ class J2WMarketIngestService:
                 if title:
                     return title
         defaults = {
-            "cn": "A股大盘复盘",
-            "us": "美股大盘复盘",
-            "both": "全球市场复盘",
+            "cn": "중국 증시 데일리 분석",
+            "us": "미국 증시 데일리 분석",
+            "both": "글로벌 증시 데일리 분석",
         }
-        return defaults.get(market_scope, "市场复盘")
+        return defaults.get(market_scope, "시장 데일리 분석")
 
     def _extract_summary(self, markdown_text: str, fallback_title: str) -> str:
         for line in self._iter_content_lines(markdown_text):

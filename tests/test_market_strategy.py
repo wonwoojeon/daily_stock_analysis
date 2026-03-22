@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 """Tests for market strategy blueprints."""
 
+import sys
 import unittest
+from unittest.mock import MagicMock
+
+sys.modules.setdefault("pandas", MagicMock())
+sys.modules.setdefault("newspaper", MagicMock())
+sys.modules.setdefault("src.search_service", MagicMock(SearchService=MagicMock()))
+sys.modules.setdefault("data_provider.base", MagicMock(DataFetcherManager=MagicMock()))
 
 from src.core.market_strategy import get_market_strategy_blueprint
 from src.market_analyzer import MarketAnalyzer, MarketOverview
@@ -41,8 +48,16 @@ class TestMarketAnalyzerStrategyPrompt(unittest.TestCase):
         analyzer = MarketAnalyzer(region="us")
         prompt = analyzer._build_review_prompt(MarketOverview(date="2026-02-24"), [])
 
-        self.assertIn("Strategy Plan", prompt)
+        self.assertIn("대응 아이디어", prompt)
         self.assertIn("US Market Regime Strategy", prompt)
+
+
+    def test_us_prompt_uses_korean_market_title_template(self):
+        analyzer = MarketAnalyzer(region="us")
+        prompt = analyzer._build_review_prompt(MarketOverview(date="2026-02-24"), [])
+
+        self.assertIn("미국 증시 데일리 분석", prompt)
+        self.assertNotIn("US Market Recap", prompt)
 
 
 if __name__ == "__main__":
