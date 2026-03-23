@@ -852,6 +852,7 @@ class GeminiAnalyzer:
         prompt: str,
         max_tokens: int = 2048,
         temperature: float = 0.7,
+        system_prompt: Optional[str] = None,
     ) -> Optional[str]:
         """Public entry point for free-form text generation.
 
@@ -863,6 +864,7 @@ class GeminiAnalyzer:
             prompt:      Text prompt to send to the LLM.
             max_tokens:  Maximum tokens in the response (default 2048).
             temperature: Sampling temperature (default 0.7).
+            system_prompt: Optional system prompt override for this call.
 
         Returns:
             Response text, or None if the LLM call fails (error is logged).
@@ -871,6 +873,7 @@ class GeminiAnalyzer:
             result = self._call_litellm(
                 prompt,
                 generation_config={"max_tokens": max_tokens, "temperature": temperature},
+                system_prompt=system_prompt,
             )
             if isinstance(result, tuple):
                 text, model_used, usage = result

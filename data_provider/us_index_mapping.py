@@ -17,29 +17,29 @@ import re
 _US_STOCK_PATTERN = re.compile(r'^[A-Z]{1,5}(\.[A-Z])?$')
 
 
-# 用户输入 -> (Yahoo Finance 符号, 中文名称)
+# 用户输入 -> (Yahoo Finance 符号, 표시용 이름)
 US_INDEX_MAPPING = {
     # 标普 500
-    'SPX': ('^GSPC', '标普500指数'),
-    '^GSPC': ('^GSPC', '标普500指数'),
-    'GSPC': ('^GSPC', '标普500指数'),
+    'SPX': ('^GSPC', 'S&P 500'),
+    '^GSPC': ('^GSPC', 'S&P 500'),
+    'GSPC': ('^GSPC', 'S&P 500'),
     # 道琼斯工业平均指数
-    'DJI': ('^DJI', '道琼斯工业指数'),
-    '^DJI': ('^DJI', '道琼斯工业指数'),
-    'DJIA': ('^DJI', '道琼斯工业指数'),
+    'DJI': ('^DJI', '다우존스 산업평균'),
+    '^DJI': ('^DJI', '다우존스 산업평균'),
+    'DJIA': ('^DJI', '다우존스 산업평균'),
     # 纳斯达克综合指数
-    'IXIC': ('^IXIC', '纳斯达克综合指数'),
-    '^IXIC': ('^IXIC', '纳斯达克综合指数'),
-    'NASDAQ': ('^IXIC', '纳斯达克综合指数'),
+    'IXIC': ('^IXIC', '나스닥 종합'),
+    '^IXIC': ('^IXIC', '나스닥 종합'),
+    'NASDAQ': ('^IXIC', '나스닥 종합'),
     # 纳斯达克 100
-    'NDX': ('^NDX', '纳斯达克100指数'),
-    '^NDX': ('^NDX', '纳斯达克100指数'),
+    'NDX': ('^NDX', '나스닥 100'),
+    '^NDX': ('^NDX', '나스닥 100'),
     # VIX 波动率指数
-    'VIX': ('^VIX', 'VIX恐慌指数'),
-    '^VIX': ('^VIX', 'VIX恐慌指数'),
+    'VIX': ('^VIX', 'VIX 변동성 지수'),
+    '^VIX': ('^VIX', 'VIX 변동성 지수'),
     # 罗素 2000
-    'RUT': ('^RUT', '罗素2000指数'),
-    '^RUT': ('^RUT', '罗素2000指数'),
+    'RUT': ('^RUT', '러셀 2000'),
+    '^RUT': ('^RUT', '러셀 2000'),
 }
 
 
@@ -96,17 +96,17 @@ def is_us_stock_code(code: str) -> bool:
 
 def get_us_index_yf_symbol(code: str) -> tuple:
     """
-    获取美股指数的 Yahoo Finance 符号与中文名称。
+    获取美股指数的 Yahoo Finance 符号与 표시용 이름。
 
     Args:
         code: 用户输入，如 'SPX', '^GSPC', 'DJI'
 
     Returns:
-        (yf_symbol, chinese_name) 元组，未找到时返回 (None, None)。
+        (yf_symbol, display_name) 元组，未找到时返回 (None, None)。
 
     Examples:
         >>> get_us_index_yf_symbol('SPX')
-        ('^GSPC', '标普500指数')
+        ('^GSPC', 'S&P 500')
         >>> get_us_index_yf_symbol('AAPL')
         (None, None)
     """
