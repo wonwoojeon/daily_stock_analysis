@@ -158,6 +158,62 @@ class TestJ2WMarketIngestService(unittest.TestCase):
 
         self.assertEqual(payload["title"], "미국 증시 데일리 분석")
 
+    @mock.patch.object(J2WMarketIngestService, "_fetch_watchlist_live_items", return_value=[])
+    @mock.patch.object(J2WMarketIngestService, "_fetch_watchlist_items", return_value=[])
+    def test_build_payload_splits_long_summary_into_multiple_highlights(self, _mock_watchlist, _mock_live):
+        service = J2WMarketIngestService(_config())
+        markdown = """# 미국 증시 데일리 분석
+
+S&P 500은 6506선에서 1.51% 하락하며 6500선 심리적 지지를 테스트했다. 나스닥은 2.01% 급락해 21600선에서 마감하며 기술주 중심의 약세가 두드러졌다. 다우존스는 0.96% 하락에 그쳐 대형 우량주 중심의 상대적 강세를 보였다. VIX는 11% 넘게 급등하며 위험회피 심리를 강화했다.
+
+| 지수 | 현재가 | 등락률 | 거래대금 |
+|------|--------|--------|----------|
+"""
+
+        payload = service.build_payload(
+            market_scope="us",
+            report_markdown=markdown,
+            report_date=date(2026, 3, 23),
+        )
+
+        self.assertEqual(
+            payload["highlights"],
+            [
+                "S&P 500은 6506선에서 1.51% 하락하며 6500선 심리적 지지를 테스트했다.",
+                "나스닥은 2.01% 급락해 21600선에서 마감하며 기술주 중심의 약세가 두드러졌다.",
+                "다우존스는 0.96% 하락에 그쳐 대형 우량주 중심의 상대적 강세를 보였다.",
+                "VIX는 11% 넘게 급등하며 위험회피 심리를 강화했다.",
+            ],
+        )
+
+    @mock.patch.object(J2WMarketIngestService, "_fetch_watchlist_live_items", return_value=[])
+    @mock.patch.object(J2WMarketIngestService, "_fetch_watchlist_items", return_value=[])
+    def test_build_payload_ignores_markdown_table_rows_in_bullet_highlights(self, _mock_watchlist, _mock_live):
+        service = J2WMarketIngestService(_config())
+        markdown = """# 미국 증시 데일리 분석
+
+단기 리스크 관리가 필요한 장입니다.
+
+- S&P 500은 6500선 지지 확인이 먼저입니다.
+- | 지수 | 현재가 | 등락률 |
+- |------|--------|--------|
+- VIX 급등으로 방어 심리가 강화됐습니다.
+"""
+
+        payload = service.build_payload(
+            market_scope="us",
+            report_markdown=markdown,
+            report_date=date(2026, 3, 23),
+        )
+
+        self.assertEqual(
+            payload["highlights"],
+            [
+                "S&P 500은 6500선 지지 확인이 먼저입니다.",
+                "VIX 급등으로 방어 심리가 강화됐습니다.",
+            ],
+        )
+
     def test_resolves_watchlist_endpoints_from_ingest_endpoint(self):
         service = J2WMarketIngestService(_config())
 

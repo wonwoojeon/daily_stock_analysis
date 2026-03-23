@@ -413,28 +413,56 @@ class J2WMarketIngestService:
         return fallback_title
 
     def _extract_highlights(self, markdown_text: str, summary: str) -> List[str]:
-        highlights: List[str] = []
+        candidates: List[str] = []
         for line in markdown_text.splitlines():
             stripped = line.strip()
             if not self._is_bullet_line(stripped):
                 continue
-            cleaned = self._clean_text(re.sub(r"^[-*+]\s+", "", stripped))
-            if cleaned:
-                highlights.append(cleaned)
+            candidates.extend(self._expand_highlight_candidate(re.sub(r"^[-*+]\s+", "", stripped)))
 
-        if not highlights:
+        if not candidates:
             for line in self._iter_content_lines(markdown_text):
-                cleaned = self._clean_text(line)
-                if cleaned and cleaned != summary:
-                    highlights.append(cleaned)
-                if len(highlights) >= 3:
+                candidates.extend(self._expand_highlight_candidate(line))
+                if len(candidates) >= 5:
                     break
 
+        if not candidates and summary:
+            candidates.extend(self._expand_highlight_candidate(summary))
+
         deduped: List[str] = []
-        for item in highlights:
+        for item in candidates:
             if item not in deduped:
                 deduped.append(item)
         return deduped[:5]
+
+    def _expand_highlight_candidate(self, text: str) -> List[str]:
+        cleaned = self._clean_text(text)
+        if not cleaned or self._is_markdown_table_line(cleaned):
+            return []
+
+        sentences = self._split_highlight_sentences(cleaned)
+        if sentences:
+            return sentences
+        return [cleaned]
+
+    def _split_highlight_sentences(self, text: str) -> List[str]:
+        parts = [self._clean_text(part) for part in re.split(r"(?<=[.!?])\s+", text) if part.strip()]
+        normalized: List[str] = []
+        for part in parts:
+            if not part or self._is_markdown_table_line(part):
+                continue
+            normalized.append(part)
+        return normalized
+
+    def _is_markdown_table_line(self, line: str) -> bool:
+        stripped = line.strip()
+        if stripped.count("|") < 2:
+            return False
+
+        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+        if len(cells) < 3:
+            return False
+        return True
 
     def _extract_tickers(self, markdown_text: str) -> List[Dict[str, str]]:
         seen: List[str] = []
