@@ -671,6 +671,8 @@ class Config:
     j2w_market_analysis_endpoint: Optional[str] = None
     j2w_market_analysis_token: Optional[str] = None
     j2w_market_analysis_source_url: Optional[str] = None
+    j2w_market_watchlist_endpoint: Optional[str] = None
+    j2w_market_watchlist_live_endpoint: Optional[str] = None
     # 交易日检查：默认启用，非交易日跳过执行；设为 false 或 --force-run 可强制执行（Issue #373）
     trading_day_check_enabled: bool = True
 
@@ -1276,6 +1278,8 @@ class Config:
                 os.getenv('J2W_MARKET_ANALYSIS_SOURCE_URL')
                 or 'https://github.com/wonwoojeon/daily_stock_analysis'
             ),
+            j2w_market_watchlist_endpoint=os.getenv('J2W_MARKET_WATCHLIST_ENDPOINT') or None,
+            j2w_market_watchlist_live_endpoint=os.getenv('J2W_MARKET_WATCHLIST_LIVE_ENDPOINT') or None,
             trading_day_check_enabled=os.getenv('TRADING_DAY_CHECK_ENABLED', 'true').lower() != 'false',
             webui_enabled=os.getenv('WEBUI_ENABLED', 'false').lower() == 'true',
             webui_host=os.getenv('WEBUI_HOST', '127.0.0.1'),
