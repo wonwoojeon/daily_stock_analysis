@@ -1878,7 +1878,7 @@ class Config:
         if not self.tushare_token:
             issues.append(ConfigIssue(
                 severity="info",
-                message="未配置 Tushare Token，将使用其他数据源",
+                message="Tushare Token이 없어 다른 데이터 소스를 사용합니다",
                 field="TUSHARE_TOKEN",
             ))
 
@@ -2025,7 +2025,7 @@ class Config:
         if not has_notification:
             issues.append(ConfigIssue(
                 severity="warning",
-                message="未配置通知渠道，将不发送推送通知",
+                message="알림 채널이 없어 푸시 알림을 보내지 않습니다",
                 field="WECHAT_WEBHOOK_URL",
             ))
 

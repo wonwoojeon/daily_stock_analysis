@@ -1542,7 +1542,7 @@ class SearXNGSearchProvider(BaseSearchProvider):
             )
             retry_enabled = True
             timeout = self.SELF_HOSTED_TIMEOUT_SECONDS
-            empty_error = "SearXNG 未配置可用实例"
+            empty_error = "SearXNG 사용 가능한 인스턴스가 없습니다"
         elif self._use_public_instances:
             public_instances = self._get_public_instances()
             candidates = self._rotate_candidates(
@@ -1556,7 +1556,7 @@ class SearXNGSearchProvider(BaseSearchProvider):
             candidates = []
             retry_enabled = False
             timeout = self.PUBLIC_INSTANCES_TIMEOUT_SECONDS
-            empty_error = "SearXNG 未配置可用实例"
+            empty_error = "SearXNG 사용 가능한 인스턴스가 없습니다"
 
         if not candidates:
             return SearchResponse(
@@ -1581,7 +1581,7 @@ class SearXNGSearchProvider(BaseSearchProvider):
             response.search_time = time.time() - start_time
             if response.success:
                 logger.info(
-                    "[%s] 搜索 '%s' 成功，实例=%s，返回 %s 条结果，耗时 %.2fs",
+                    "[%s] '%s' 검색 성공, 인스턴스=%s, 결과 %s건, 소요 %.2fs",
                     self.name,
                     query,
                     base_url,
@@ -1590,8 +1590,8 @@ class SearXNGSearchProvider(BaseSearchProvider):
                 )
                 return response
 
-            errors.append(f"{base_url}: {response.error_message or '未知错误'}")
-            logger.warning("[%s] 实例 %s 搜索失败: %s", self.name, base_url, response.error_message)
+            errors.append(f"{base_url}: {response.error_message or '알 수 없는 오류'}")
+            logger.warning("[%s] 인스턴스 %s 검색 실패: %s", self.name, base_url, response.error_message)
 
         elapsed = time.time() - start_time
         return SearchResponse(
@@ -1717,17 +1717,17 @@ class SearchService:
             if searxng_base_urls:
                 logger.info("已配置 SearXNG 搜索，共 %s 个自建实例", len(searxng_base_urls))
             else:
-                logger.info("已启用 SearXNG 公共实例自动发现模式")
+                logger.info("SearXNG 공개 인스턴스 자동 탐색 모드를 사용합니다")
 
         if not self._providers:
-            logger.warning("未配置任何搜索能力，新闻搜索功能将不可用")
+            logger.warning("검색 기능이 없어 뉴스 검색을 사용할 수 없습니다")
 
         # In-memory search result cache: {cache_key: (timestamp, SearchResponse)}
         self._cache: Dict[str, Tuple[float, 'SearchResponse']] = {}
         # Default cache TTL in seconds (10 minutes)
         self._cache_ttl: int = 600
         logger.info(
-            "新闻时效策略已启用: profile=%s, profile_days=%s, NEWS_MAX_AGE_DAYS=%s, effective_window=%s",
+            "뉴스 시효 전략 사용: profile=%s, profile_days=%s, NEWS_MAX_AGE_DAYS=%s, effective_window=%s",
             self.news_strategy_profile,
             self.news_profile_days,
             self.news_max_age_days,
@@ -2108,8 +2108,8 @@ class SearchService:
 
         logger.info(
             (
-                "搜索股票新闻: %s(%s), query='%s', 时间范围: 近%s天 "
-                "(profile=%s, NEWS_MAX_AGE_DAYS=%s), 目标条数=%s, provider请求条数=%s"
+                "뉴스 검색: %s(%s), query='%s', 기간: 최근 %s일 "
+                "(profile=%s, NEWS_MAX_AGE_DAYS=%s), 목표 건수=%s, provider 요청 건수=%s"
             ),
             stock_name,
             stock_code,
@@ -2125,7 +2125,7 @@ class SearchService:
         cache_key = self._cache_key(query, max_results, search_days)
         cached = self._get_cached(cache_key)
         if cached is not None:
-            logger.info(f"使用缓存搜索结果: {stock_name}({stock_code})")
+            logger.info("캐시된 검색 결과 사용: %s(%s)", stock_name, stock_code)
             return cached
 
         # 依次尝试各个搜索引擎（若过滤后为空，继续尝试下一引擎）
@@ -2148,18 +2148,18 @@ class SearchService:
             had_provider_success = had_provider_success or bool(response.success)
 
             if filtered_response.success and filtered_response.results:
-                logger.info(f"使用 {provider.name} 搜索成功")
+                logger.info("%s 검색 성공", provider.name)
                 self._put_cache(cache_key, filtered_response)
                 return filtered_response
             else:
                 if response.success and not filtered_response.results:
                     logger.info(
-                        "%s 搜索成功但过滤后无有效新闻，继续尝试下一引擎",
+                        "%s 검색은 성공했지만 필터 후 유효 뉴스가 없어 다음 엔진을 시도합니다",
                         provider.name,
                     )
                 else:
                     logger.warning(
-                        "%s 搜索失败: %s，尝试下一个引擎",
+                        "%s 검색 실패: %s, 다음 엔진을 시도합니다",
                         provider.name,
                         response.error_message,
                     )

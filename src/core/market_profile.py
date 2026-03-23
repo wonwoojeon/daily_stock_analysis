@@ -44,11 +44,11 @@ US_PROFILE = MarketProfile(
     region="us",
     mood_index_code="SPX",
     news_queries=[
-        "美股 大盘",
-        "US stock market",
-        "S&P 500 NASDAQ",
+        "미국 증시 마감",
+        "US stock market close",
+        "S&P 500 Nasdaq market recap",
     ],
-    prompt_index_hint="分析标普500、纳斯达克、道指等各指数走势特点",
+    prompt_index_hint="S&P 500, 나스닥 종합, 다우존스 산업평균의 흐름과 차이를 설명",
     has_market_stats=False,
     has_sector_rankings=False,
 )

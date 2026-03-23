@@ -358,16 +358,16 @@ class YfinanceFetcher(BaseFetcher):
                     item = self._fetch_yf_ticker_data(yf, yf_symbol, name, code)
                     if item:
                         results.append(item)
-                        logger.debug(f"[Yfinance] 获取美股指数 {name} 成功")
+                        logger.debug("[Yfinance] 미국 지수 %s 조회 성공", name)
                 except Exception as e:
-                    logger.warning(f"[Yfinance] 获取美股指数 {name} 失败: {e}")
+                    logger.warning("[Yfinance] 미국 지수 %s 조회 실패: %s", name, e)
 
             if results:
-                logger.info(f"[Yfinance] 成功获取 {len(results)} 个美股指数行情")
+                logger.info("[Yfinance] 미국 지수 시세 %d건 확보", len(results))
                 return results
 
         except Exception as e:
-            logger.error(f"[Yfinance] 获取美股指数行情失败: {e}")
+            logger.error("[Yfinance] 미국 지수 시세 조회 실패: %s", e)
 
         return None
 
