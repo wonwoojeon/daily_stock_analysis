@@ -150,6 +150,6 @@ def setup_logging(
     except ValueError:
         rel_debug_log_file = debug_log_file
 
-    logging.info(f"日志系统初始化完成，日志目录: {rel_log_path}")
-    logging.info(f"常规日志: {rel_log_file}")
-    logging.info(f"调试日志: {rel_debug_log_file}")
+    logging.info(f"로그 시스템 초기화 완료, 로그 디렉터리: {rel_log_path}")
+    logging.info(f"일반 로그: {rel_log_file}")
+    logging.info(f"디버그 로그: {rel_debug_log_file}")

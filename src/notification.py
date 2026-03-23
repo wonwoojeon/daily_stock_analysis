@@ -166,7 +166,7 @@ class NotificationService(
             self._context_channels.append("钉钉会话")
 
         if not self._available_channels and not self._context_channels:
-            logger.warning("未配置有效的通知渠道，将不发送推送通知")
+            logger.warning("유효한 알림 채널이 없어 푸시 알림을 보내지 않습니다")
         else:
             channel_names = [ChannelDetector.get_channel_name(ch) for ch in self._available_channels]
             channel_names.extend(self._context_channels)
@@ -1721,7 +1721,7 @@ class NotificationService(
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(content)
         
-        logger.info(f"日报已保存到: {filepath}")
+        logger.info("리포트를 저장했습니다: %s", filepath)
         return str(filepath)
 
 

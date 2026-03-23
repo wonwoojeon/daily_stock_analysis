@@ -544,8 +544,8 @@ def main() -> int:
     setup_logging(log_prefix="stock_analysis", debug=args.debug, log_dir=config.log_dir)
 
     logger.info("=" * 60)
-    logger.info("A股自选股智能分析系统 启动")
-    logger.info(f"运行时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info("주식 분석 시스템 시작")
+    logger.info(f"실행 시각: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info("=" * 60)
 
     # 验证配置
@@ -594,7 +594,7 @@ def main() -> int:
 
     # === 仅 Web 服务模式：不自动执行分析 ===
     if args.serve_only:
-        logger.info("模式: 仅 Web 服务")
+        logger.info("모드: 웹 서비스 전용")
         logger.info(f"Web 服务运行中: http://{args.host}:{args.port}")
         logger.info("通过 /api/v1/analysis/analyze 接口触发分析")
         logger.info(f"API 文档: http://{args.host}:{args.port}/docs")
@@ -609,7 +609,7 @@ def main() -> int:
     try:
         # 模式0: 回测
         if getattr(args, 'backtest', False):
-            logger.info("模式: 回测")
+            logger.info("모드: 백테스트")
             from src.services.backtest_service import BacktestService
 
             service = BacktestService()
@@ -646,7 +646,7 @@ def main() -> int:
                     logger.info("今日大盘复盘相关市场均为非交易日，跳过执行。可使用 --force-run 强制执行。")
                     return 0
 
-            logger.info("模式: 仅大盘复盘")
+            logger.info("모드: 시장 복기 전용")
             notifier = NotificationService()
 
             # 初始化搜索服务和分析器（如果有配置）
@@ -702,7 +702,7 @@ def main() -> int:
 
         # 模式2: 定时任务模式
         if args.schedule or config.schedule_enabled:
-            logger.info("模式: 定时任务")
+            logger.info("모드: 스케줄 실행")
             logger.info(f"每日执行时间: {config.schedule_time}")
 
             # Determine whether to run immediately:
